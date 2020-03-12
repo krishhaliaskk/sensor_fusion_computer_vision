@@ -13,22 +13,4 @@ struct DataFrame { // represents the available sensor information at the same ti
     cv::Mat descriptors; // keypoint descriptors
     std::vector<cv::DMatch> kptMatches; // keypoint matches between previous and current frame
 };
-
-template <typename T>
-class ring_buffer {
-    std::vector<T> dataBuffer;
-    int size;
-    int index;
-public:
-    ring_buffer(int size_dataBuffer)
-    {
-        size = size_dataBuffer;
-        index =0;
-    }
-    void push_back(T data)
-    {
-        dataBuffer.insert(data, index % size);
-        index++;
-    }
-};
 #endif /* dataStructures_h */

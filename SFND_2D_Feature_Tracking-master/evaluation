@@ -1,0 +1,7 @@
+Top performing combination 
+
+1) FAST detector with ORB, BRIEF, BRISK
+
+2) BRISK detector with BRISK
+
+3) BRISK detector with BRIEF

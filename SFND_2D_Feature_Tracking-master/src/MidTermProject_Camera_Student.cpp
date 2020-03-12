@@ -25,7 +25,7 @@ int main(int argc, const char *argv[])
     /* INIT VARIABLES AND DATA STRUCTURES */
 
     // data location
-    string dataPath = "/home/jarvis/jarvis/work/sensor_fusion/camera/sensor_fusion_computer_vision/SFND_2D_Feature_Tracking-master/";
+    string dataPath = "../";
 
     // camera
     string imgBasePath = dataPath + "images/";
@@ -39,6 +39,7 @@ int main(int argc, const char *argv[])
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
     bool bVis = false;            // visualize results
+
 
     /* MAIN LOOP OVER ALL IMAGES */
 
@@ -63,6 +64,10 @@ int main(int argc, const char *argv[])
         DataFrame frame;
         frame.cameraImg = imgGray;
         dataBuffer.push_back(frame);
+        if(dataBuffer.size() > dataBufferSize)
+        {
+            dataBuffer.erase(dataBuffer.begin());
+        }
 
         //// EOF STUDENT ASSIGNMENT
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
@@ -71,7 +76,10 @@ int main(int argc, const char *argv[])
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "SHITOMASI";
+
+        string detectorType = "ORB"; //HARRIS, SHITOMASI, FAST, BRISK, ORB, AKAZE, SIFT, FREAK
+        string descriptorType_ = "BRIEF"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+        string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
@@ -81,9 +89,37 @@ int main(int argc, const char *argv[])
         {
             detKeypointsShiTomasi(keypoints, imgGray, false);
         }
+        else if (detectorType.compare("HARRIS") == 0)
+        {
+            detKeypointsHarris(keypoints, imgGray, false);
+        }
+        else if (detectorType.compare("FAST") == 0)
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
+        else if (detectorType.compare("BRISK") == 0)
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
+        else if (detectorType.compare("ORB") == 0)
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
+        else if (detectorType.compare("AKAZE") == 0)
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
+        else if (detectorType.compare("SIFT") == 0)
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
+        else if (detectorType.compare("FREAK") == 0)
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
         else
         {
-            //...
+
         }
         //// EOF STUDENT ASSIGNMENT
 
@@ -95,7 +131,15 @@ int main(int argc, const char *argv[])
         cv::Rect vehicleRect(535, 180, 180, 150);
         if (bFocusOnVehicle)
         {
-            // ...
+            for(auto it = keypoints.begin(); it != keypoints.end(); it++)
+            {
+                if(!( (*it).pt.x > vehicleRect.x && (*it).pt.x < (vehicleRect.x + vehicleRect.width) &&
+                    (*it).pt.y > vehicleRect.y && (*it).pt.y < (vehicleRect.y + vehicleRect.height)))
+                {
+                    keypoints.erase(it);
+                    it--;
+                }
+            }
         }
 
         //// EOF STUDENT ASSIGNMENT
@@ -125,8 +169,8 @@ int main(int argc, const char *argv[])
         //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT
-        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+        //string descriptorType_ = "BRISK"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType_);
         //// EOF STUDENT ASSIGNMENT
 
         // push descriptors for current frame to end of data buffer
@@ -141,8 +185,8 @@ int main(int argc, const char *argv[])
 
             vector<cv::DMatch> matches;
             string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+            //string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
+            string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
 
             //// STUDENT ASSIGNMENT
             //// TASK MP.5 -> add FLANN matching in file matching2D.cpp
